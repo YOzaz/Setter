@@ -11,6 +11,9 @@ class SettingSpec extends ObjectBehavior
 	const INTEGER = 1;
 	const BOOLEAN = true;
 
+	private static $array_assoc = array('key' => 'index');
+	private static $array_non_assoc = array('index');
+
 	function it_is_initializable()
 	{
 		$query = Mockery::mock('Illuminate\Database\DatabaseManager');
@@ -326,6 +329,58 @@ class SettingSpec extends ObjectBehavior
 		$this->set(self::KEY, array(self::STRING, self::STRING, self::STRING))->shouldReturn(true);
 	}
 
+	function it_can_set_an_associative_array_setting()
+	{
+		$query = Mockery::mock('Illuminate\Database\DatabaseManager');
+		$query->shouldReceive('table')->andReturn($query);
+		$query->shouldReceive('select')->andReturn($query);
+		$query->shouldReceive('where')->andReturn($query);
+		$query->shouldReceive('get')->andReturn(false);
+		$query->shouldReceive('insert')->andReturn(true);
+		$query->shouldReceive('select')->andReturn($query);
+		$query->shouldReceive('whereRaw')->andReturn($query);
+		$query->shouldReceive('lists')->andReturn($query);
+		$query->shouldReceive('count')->andReturn(0);
+
+		$repository = Mockery::mock('Illuminate\Config\Repository');
+
+		$cache = Mockery::mock('Illuminate\Cache\Repository');
+		$cache->shouldReceive('add')->andReturn(true);
+		$cache->shouldReceive('has')->andReturn(false);
+		$cache->shouldReceive('forget')->andReturn(true);
+		$cache->shouldReceive('get')->andReturn(array(self::STRING, self::STRING, self::STRING));
+
+		$this->beConstructedWith($query, $repository, $cache);
+
+		$this->set(self::KEY, self::$array_assoc)->shouldReturn(true);
+	}
+
+	function it_can_set_non_associative_array_setting()
+	{
+		$query = Mockery::mock('Illuminate\Database\DatabaseManager');
+		$query->shouldReceive('table')->andReturn($query);
+		$query->shouldReceive('select')->andReturn($query);
+		$query->shouldReceive('where')->andReturn($query);
+		$query->shouldReceive('get')->andReturn(false);
+		$query->shouldReceive('insert')->andReturn(true);
+		$query->shouldReceive('select')->andReturn($query);
+		$query->shouldReceive('whereRaw')->andReturn($query);
+		$query->shouldReceive('lists')->andReturn($query);
+		$query->shouldReceive('count')->andReturn(0);
+
+		$repository = Mockery::mock('Illuminate\Config\Repository');
+
+		$cache = Mockery::mock('Illuminate\Cache\Repository');
+		$cache->shouldReceive('add')->andReturn(true);
+		$cache->shouldReceive('has')->andReturn(false);
+		$cache->shouldReceive('forget')->andReturn(true);
+		$cache->shouldReceive('get')->andReturn(array(self::STRING, self::STRING, self::STRING));
+
+		$this->beConstructedWith($query, $repository, $cache);
+
+		$this->set(self::KEY, self::$array_non_assoc)->shouldReturn(true);
+	}
+
 	function it_can_set_a_setting_in_cache()
 	{
 		$query = Mockery::mock('Illuminate\Database\DatabaseManager');
@@ -478,6 +533,56 @@ class SettingSpec extends ObjectBehavior
 
 		$this->set(self::KEY, self::BOOLEAN)->shouldReturn(true);
 		$this->get(self::KEY)->shouldReturn(self::BOOLEAN);
+	}
+
+	function it_can_set_and_get_an_associative_array_setting()
+	{
+		$query = Mockery::mock('Illuminate\Database\DatabaseManager');
+		$query->shouldReceive('table')->andReturn($query);
+		$query->shouldReceive('insert')->andReturn(true);
+		$query->shouldReceive('select')->andReturn($query);
+		$query->shouldReceive('where')->andReturn($query);
+		$query->shouldReceive('whereRaw')->andReturn($query);
+		$query->shouldReceive('lists')->andReturn(array(self::KEY => json_encode(self::BOOLEAN)));
+		$query->shouldReceive('count')->andReturn(0);
+
+		$repository = Mockery::mock('Illuminate\Config\Repository');
+		$repository->shouldReceive('get')->andReturn(false);
+
+		$cache = Mockery::mock('Illuminate\Cache\Repository');
+		$cache->shouldReceive('add')->andReturn(true);
+		$cache->shouldReceive('has')->andReturn(false);
+		$cache->shouldReceive('forget')->andReturn(true);
+
+		$this->beConstructedWith($query, $repository, $cache);
+
+		$this->set(self::KEY, self::$array_assoc)->shouldReturn(true);
+		$this->get(self::KEY)->shouldReturn(self::$array_assoc);
+	}
+
+	function it_can_set_and_get_non_associative_array_setting()
+	{
+		$query = Mockery::mock('Illuminate\Database\DatabaseManager');
+		$query->shouldReceive('table')->andReturn($query);
+		$query->shouldReceive('insert')->andReturn(true);
+		$query->shouldReceive('select')->andReturn($query);
+		$query->shouldReceive('where')->andReturn($query);
+		$query->shouldReceive('whereRaw')->andReturn($query);
+		$query->shouldReceive('lists')->andReturn(array(self::KEY => json_encode(self::BOOLEAN)));
+		$query->shouldReceive('count')->andReturn(0);
+
+		$repository = Mockery::mock('Illuminate\Config\Repository');
+		$repository->shouldReceive('get')->andReturn(false);
+
+		$cache = Mockery::mock('Illuminate\Cache\Repository');
+		$cache->shouldReceive('add')->andReturn(true);
+		$cache->shouldReceive('has')->andReturn(false);
+		$cache->shouldReceive('forget')->andReturn(true);
+
+		$this->beConstructedWith($query, $repository, $cache);
+
+		$this->set(self::KEY, self::$array_non_assoc)->shouldReturn(true);
+		$this->get(self::KEY)->shouldReturn(self::$array_non_assoc);
 	}
 
 	function it_can_set_and_get_an_empty_setting()
